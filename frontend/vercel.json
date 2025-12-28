@@ -1,7 +1,4 @@
 {
   "version": 2,
-  "framework": "nextjs",
-  "settings": {
-    "maxDuration": 300
-  }
+  "framework": "nextjs"
 }

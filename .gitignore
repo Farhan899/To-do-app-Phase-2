@@ -68,6 +68,7 @@ out/
 .env.production.local
 /backend/.env.example
 /backend/.env
+.qwen
 
 # IDEs and Editors
 .vscode/
