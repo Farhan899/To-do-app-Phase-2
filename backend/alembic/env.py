@@ -1,4 +1,5 @@
 import asyncio
+import os
 from logging.config import fileConfig
 
 from sqlalchemy import pool
@@ -16,8 +17,11 @@ from app.core.config import settings
 # access to the values within the .ini file in use.
 config = context.config
 
-# Set database URL from settings
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+# Try to get DATABASE_URL from environment variables first (for Railway deployment)
+database_url = os.getenv("DATABASE_URL", settings.DATABASE_URL)
+
+# Set database URL from environment or settings
+config.set_main_option("sqlalchemy.url", database_url)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
