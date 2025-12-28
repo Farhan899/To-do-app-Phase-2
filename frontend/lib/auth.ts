@@ -8,6 +8,9 @@ const pool = new Pool({
 export const auth = betterAuth({
   database: pool,
   secret: process.env.BETTER_AUTH_SECRET!,
+  emailAndPassword: {
+    enabled: true,
+  },
   session: {
     expiresIn: 60 * 60 * 24, // 24 hours (in seconds)
   },
