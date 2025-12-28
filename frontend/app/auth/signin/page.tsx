@@ -19,10 +19,22 @@ export default function SignInPage() {
     setLoading(true);
 
     try {
-      await auth.api.signInEmail({
-        email,
-        password,
+      const response = await fetch('/api/auth/sign-in', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
       });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Login failed");
+      }
 
       toast.success("Welcome back!");
       router.push("/dashboard");

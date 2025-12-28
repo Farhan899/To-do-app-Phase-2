@@ -33,17 +33,42 @@ export default function SignUpPage() {
     setLoading(true);
 
     try {
-      await auth.api.signUpEmail({
-        email,
-        password,
-        name: email.split("@")[0], // Use email prefix as name
+      // Register user
+      const signUpResponse = await fetch('/api/auth/sign-up', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          name: email.split("@")[0], // Use email prefix as name
+        }),
       });
 
+      const signUpData = await signUpResponse.json();
+
+      if (!signUpResponse.ok) {
+        throw new Error(signUpData.message || "Registration failed");
+      }
+
       // Auto sign-in after successful registration
-      await auth.api.signInEmail({
-        email,
-        password,
+      const signInResponse = await fetch('/api/auth/sign-in', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
       });
+
+      const signInData = await signInResponse.json();
+
+      if (!signInResponse.ok) {
+        throw new Error(signInData.message || "Login after registration failed");
+      }
 
       toast.success("Account created successfully! Welcome!");
       router.push("/dashboard");
