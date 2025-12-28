@@ -1,4 +1,4 @@
-import { auth } from "./auth";
+import { authClient } from "./auth-client";
 import { Task, TaskCreate, TaskUpdate } from "./types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -12,15 +12,15 @@ async function getAuthHeaders(): Promise<HeadersInit> {
     throw new Error("Not in browser environment");
   }
 
-  const session = await auth.api.getSession();
+  const session = await authClient.getSession();
 
-  if (!session?.user?.id || !session?.session?.token) {
+  if (!session?.data?.user?.id || !session?.data?.session?.token) {
     throw new Error("Not authenticated");
   }
 
   return {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${session.session.token}`,
+    Authorization: `Bearer ${session.data.session.token}`,
   };
 }
 
@@ -33,13 +33,13 @@ async function getCurrentUserId(): Promise<string> {
     throw new Error("Not in browser environment");
   }
 
-  const session = await auth.api.getSession();
+  const session = await authClient.getSession();
 
-  if (!session?.user?.id) {
+  if (!session?.data?.user?.id) {
     throw new Error("Not authenticated");
   }
 
-  return session.user.id;
+  return session.data.user.id;
 }
 
 /**

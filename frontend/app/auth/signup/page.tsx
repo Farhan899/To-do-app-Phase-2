@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { auth } from "@/lib/auth";
+import { authClient } from "@/lib/auth-client";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -33,41 +33,15 @@ export default function SignUpPage() {
     setLoading(true);
 
     try {
-      // Register user
-      const signUpResponse = await fetch('/api/auth/sign-up', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-          name: email.split("@")[0], // Use email prefix as name
-        }),
+      // Register user using Better Auth client
+      const { data, error } = await authClient.signUp.email({
+        email,
+        password,
+        name: email.split("@")[0], // Use email prefix as name
       });
 
-      const signUpData = await signUpResponse.json();
-
-      if (!signUpResponse.ok) {
-        throw new Error(signUpData.message || "Registration failed");
-      }
-
-      // Auto sign-in after successful registration
-      const signInResponse = await fetch('/api/auth/sign-in', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
-
-      const signInData = await signInResponse.json();
-
-      if (!signInResponse.ok) {
-        throw new Error(signInData.message || "Login after registration failed");
+      if (error) {
+        throw new Error(error.message || "Registration failed");
       }
 
       toast.success("Account created successfully! Welcome!");
