@@ -23,5 +23,6 @@ async def root():
     return {"message": "Neon-FastAPI-Next-Todo API", "version": "1.0.0"}
 
 # Import and include routers
-from app.api.routes import tasks
+from app.api.routes import tasks, debug
 app.include_router(tasks.router)
+app.include_router(debug.router)

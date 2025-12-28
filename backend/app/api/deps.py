@@ -1,18 +1,22 @@
 from typing import Annotated
 from fastapi import Depends, HTTPException, status, Header
-from app.core.security import decode_jwt
+from sqlmodel.ext.asyncio.session import AsyncSession
+from app.core.security import validate_session_token
+from app.core.database import get_session
 
-def get_current_user(
-    authorization: Annotated[str | None, Header()] = None
+async def get_current_user(
+    authorization: Annotated[str | None, Header()] = None,
+    session: AsyncSession = Depends(get_session)
 ) -> str:
     """
-    FastAPI dependency for extracting authenticated user ID from JWT.
+    FastAPI dependency for extracting authenticated user ID from Better Auth session token.
 
     Args:
         authorization: Authorization header (Bearer <token>)
+        session: Database session
 
     Returns:
-        User ID from JWT sub claim
+        User ID from valid session
 
     Raises:
         HTTPException: 401 if token is missing or invalid
@@ -34,6 +38,6 @@ def get_current_user(
         )
 
     token = parts[1]
-    payload = decode_jwt(token)
+    user_id = await validate_session_token(token, session)
 
-    return payload["sub"]  # Return user_id
+    return user_id
