@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 import toast from "react-hot-toast";
-import { auth } from "@/lib/auth";
+import { authClient } from "@/lib/auth-client";
 import { listTasks } from "@/lib/api";
 import { Task } from "@/lib/types";
 import TaskList from "@/components/task-list";
@@ -23,9 +23,9 @@ export default function DashboardPage() {
 
   async function checkAuthAndLoadTasks() {
     try {
-      const session = await auth.api.getSession();
+      const session = await authClient.getSession();
 
-      if (!session?.user) {
+      if (!session?.data?.user) {
         router.push("/auth/signin");
         return;
       }
@@ -41,7 +41,7 @@ export default function DashboardPage() {
   }
 
   async function handleLogout() {
-    await auth.api.signOut();
+    await authClient.signOut();
     toast.success("Logged out successfully");
     router.push("/auth/signin");
   }
