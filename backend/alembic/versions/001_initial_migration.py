@@ -33,10 +33,10 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_tasks_user_id'), 'tasks', ['user_id'], unique=False)
-    op.create_foreign_key('fk_tasks_user_id_users', 'tasks', 'users', ['user_id'], ['id'])
+    op.create_foreign_key('fk_tasks_user_id_user', 'tasks', 'user', ['user_id'], ['id'])
 
 
 def downgrade() -> None:
-    op.drop_constraint('fk_tasks_user_id_users', 'tasks', type_='foreignkey')
+    op.drop_constraint('fk_tasks_user_id_user', 'tasks', type_='foreignkey')
     op.drop_index(op.f('ix_tasks_user_id'), table_name='tasks')
     op.drop_table('tasks')
