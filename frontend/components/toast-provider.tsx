@@ -11,20 +11,24 @@ export function ToastProvider() {
       toastOptions={{
         duration: 4000,
         style: {
-          background: "#363636",
+          background: "#1f2937",
           color: "#fff",
+          borderRadius: "12px",
+          padding: "12px 16px",
+          fontSize: "14px",
+          boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
         },
         success: {
           duration: 3000,
           iconTheme: {
-            primary: "#10B981",
+            primary: "#3b82f6",
             secondary: "#fff",
           },
         },
         error: {
           duration: 5000,
           iconTheme: {
-            primary: "#EF4444",
+            primary: "#ef4444",
             secondary: "#fff",
           },
         },

@@ -1,9 +1,13 @@
+export type Priority = "high" | "medium" | "low" | null;
+
 export interface Task {
   id: number;
   user_id: string;
   title: string;
   description: string | null;
   is_completed: boolean;
+  priority: Priority;
+  due_date: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -11,9 +15,13 @@ export interface Task {
 export interface TaskCreate {
   title: string;
   description?: string;
+  priority?: Priority;
+  due_date?: string;
 }
 
 export interface TaskUpdate {
   title?: string;
   description?: string | null;
+  priority?: Priority;
+  due_date?: string | null;
 }
