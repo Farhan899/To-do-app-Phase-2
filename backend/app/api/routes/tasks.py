@@ -55,6 +55,8 @@ async def create_task(
         user_id=user_id,
         title=task_data.title,
         description=task_data.description,
+        priority=task_data.priority,
+        due_date=task_data.due_date,
     )
 
     session.add(task)
@@ -112,6 +114,10 @@ async def update_task(
         task.title = task_data.title
     if task_data.description is not None:
         task.description = task_data.description
+    if task_data.priority is not None:
+        task.priority = task_data.priority
+    if task_data.due_date is not None:
+        task.due_date = task_data.due_date
 
     task.updated_at = datetime.utcnow()
 
