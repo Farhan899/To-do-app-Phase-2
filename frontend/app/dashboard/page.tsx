@@ -13,6 +13,8 @@ import Sidebar from "@/components/sidebar";
 import { DailyProgressCard } from "@/components/progress-ring";
 import { DashboardSkeleton } from "@/components/skeleton";
 
+type ActiveView = "today" | "upcoming" | "projects" | "calendar" | "settings";
+
 export default function DashboardPage() {
   const router = useRouter();
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -24,6 +26,7 @@ export default function DashboardPage() {
   const [userEmail, setUserEmail] = useState("");
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
+  const [activeView, setActiveView] = useState<ActiveView>("today");
   const quickAddRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -70,6 +73,11 @@ export default function DashboardPage() {
     router.push("/auth/signin");
   }
 
+  function handleNavigate(view: ActiveView) {
+    setActiveView(view);
+    toast.success(`Switched to ${view.charAt(0).toUpperCase() + view.slice(1)} view`);
+  }
+
   // Filter tasks based on search
   const filteredTasks = useMemo(() => {
     if (!searchQuery.trim()) return tasks;
@@ -112,7 +120,8 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-[var(--background)]">
       {/* Sidebar */}
       <Sidebar
-        activeItem="today"
+        activeItem={activeView}
+        onNavigate={handleNavigate}
         onLogout={handleLogout}
         userName={userName}
         userEmail={userEmail}
@@ -264,16 +273,28 @@ export default function DashboardPage() {
           {/* Greeting & Stats */}
           <div className="mb-4 sm:mb-6 lg:mb-8">
             <h1 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-1">
-              {greeting}, {userName.split(" ")[0]}!
+              {activeView === "today"
+                ? `${greeting}, ${userName.split(" ")[0]}!`
+                : activeView.charAt(0).toUpperCase() + activeView.slice(1)}
             </h1>
             <p className="text-sm sm:text-base text-gray-500">
-              {todayStats.total === 0
-                ? "You have no tasks scheduled. Create one to get started!"
-                : todayStats.completed === todayStats.total
-                ? "All tasks completed! Great work!"
-                : `You have ${todayStats.total - todayStats.completed} task${
-                    todayStats.total - todayStats.completed !== 1 ? "s" : ""
-                  } to complete today.`}
+              {activeView === "today" ? (
+                todayStats.total === 0
+                  ? "You have no tasks scheduled. Create one to get started!"
+                  : todayStats.completed === todayStats.total
+                  ? "All tasks completed! Great work!"
+                  : `You have ${todayStats.total - todayStats.completed} task${
+                      todayStats.total - todayStats.completed !== 1 ? "s" : ""
+                    } to complete today.`
+              ) : activeView === "upcoming" ? (
+                "View your upcoming tasks and deadlines"
+              ) : activeView === "projects" ? (
+                "Organize your tasks by projects"
+              ) : activeView === "calendar" ? (
+                "Calendar view of your tasks"
+              ) : (
+                "Manage your account settings"
+              )}
             </p>
           </div>
 
