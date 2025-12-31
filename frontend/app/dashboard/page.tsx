@@ -9,12 +9,12 @@ import { listTasks } from "@/lib/api";
 import { Task } from "@/lib/types";
 import TaskList, { EmptyState } from "@/components/task-list";
 import TaskForm from "@/components/task-form";
-import Sidebar from "@/components/sidebar";
+import Sidebar, { type NavItem } from "@/components/sidebar";
 import { DailyProgressCard } from "@/components/progress-ring";
 import { DashboardSkeleton } from "@/components/skeleton";
 import CalendarView from "@/components/calendar-view";
 
-type ActiveView = "all" | "today" | "upcoming" | "completed" | "calendar";
+type ActiveView = NavItem;
 
 export default function DashboardPage() {
   const router = useRouter();

@@ -16,7 +16,7 @@ import {
   ListTodo,
 } from "lucide-react";
 
-type NavItem = "all" | "today" | "upcoming" | "completed" | "projects" | "calendar";
+export type NavItem = "all" | "today" | "upcoming" | "completed" | "projects" | "calendar";
 
 interface SidebarProps {
   activeItem?: NavItem;
