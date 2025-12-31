@@ -85,7 +85,7 @@ export default function TaskEditModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/30 backdrop-blur-sm"
@@ -93,7 +93,7 @@ export default function TaskEditModal({
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-xl animate-scale-in">
+      <div className="relative w-full sm:max-w-lg bg-white rounded-t-2xl sm:rounded-2xl shadow-xl animate-scale-in max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-100">
           <h2 className="text-lg font-semibold text-gray-800">Edit Task</h2>
@@ -150,7 +150,7 @@ export default function TaskEditModal({
           </div>
 
           {/* Priority & Due Date Row */}
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             {/* Priority Dropdown */}
             <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-1">

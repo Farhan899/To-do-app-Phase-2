@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Plus, Bell, X } from "lucide-react";
+import { Search, Plus, Bell, X, Menu } from "lucide-react";
 import toast from "react-hot-toast";
 import { authClient } from "@/lib/auth-client";
 import { listTasks } from "@/lib/api";
@@ -22,6 +22,8 @@ export default function DashboardPage() {
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [userName, setUserName] = useState("User");
   const [userEmail, setUserEmail] = useState("");
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
   const quickAddRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -116,15 +118,26 @@ export default function DashboardPage() {
         userEmail={userEmail}
         completedToday={todayStats.completed}
         totalToday={todayStats.total}
+        isMobileOpen={isMobileSidebarOpen}
+        onMobileClose={() => setIsMobileSidebarOpen(false)}
       />
 
       {/* Main Content */}
-      <div className="ml-[280px] min-h-screen">
+      <div className="lg:ml-[280px] min-h-screen">
         {/* Top Header */}
         <header className="sticky top-0 z-30 glass-header border-b border-gray-100">
-          <div className="px-8 py-4 flex items-center justify-between gap-4">
-            {/* Search Bar */}
-            <div className="relative flex-1 max-w-md">
+          <div className="px-4 sm:px-6 lg:px-8 py-3 lg:py-4 flex items-center justify-between gap-2 sm:gap-4">
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setIsMobileSidebarOpen(true)}
+              className="lg:hidden p-2 -ml-2 rounded-xl hover:bg-gray-100 text-gray-600 transition-colors"
+              aria-label="Open menu"
+            >
+              <Menu size={24} />
+            </button>
+
+            {/* Search Bar - Desktop */}
+            <div className="hidden sm:block relative flex-1 max-w-md">
               <Search
                 size={18}
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -134,7 +147,7 @@ export default function DashboardPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search tasks..."
-                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:bg-white focus:border-blue-300 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="w-full pl-10 pr-4 py-2.5 bg-blue-50/50 border-2 border-blue-100 rounded-xl text-sm text-gray-800 placeholder:text-gray-400 shadow-md focus:outline-none focus:bg-white focus:border-blue-300 focus:ring-2 focus:ring-blue-50 focus:shadow-lg transition-all"
               />
               {searchQuery && (
                 <button
@@ -146,34 +159,84 @@ export default function DashboardPage() {
               )}
             </div>
 
+            {/* Mobile: App Title */}
+            <h1 className="sm:hidden text-lg font-semibold text-gray-800 flex-1 text-center">
+              TaskFlow
+            </h1>
+
             {/* Header Actions */}
-            <div className="flex items-center gap-3">
-              {/* Notifications */}
-              <button className="p-2.5 rounded-xl hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors relative">
-                <Bell size={20} />
-                <span className="absolute top-2 right-2 w-2 h-2 bg-blue-500 rounded-full" />
+            <div className="flex items-center gap-1 sm:gap-3">
+              {/* Mobile Search Toggle */}
+              <button
+                onClick={() => setShowMobileSearch(!showMobileSearch)}
+                className="sm:hidden p-2 rounded-xl hover:bg-gray-100 text-gray-500 transition-colors"
+              >
+                <Search size={20} />
               </button>
 
-              {/* Quick Add Button */}
+              {/* Notifications */}
+              <button className="p-2 sm:p-2.5 rounded-xl hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors relative">
+                <Bell size={20} />
+                <span className="absolute top-1.5 sm:top-2 right-1.5 sm:right-2 w-2 h-2 bg-blue-500 rounded-full" />
+              </button>
+
+              {/* Quick Add Button - Desktop */}
               <button
                 onClick={() => setShowQuickAdd(!showQuickAdd)}
-                className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors shadow-sm"
+                className="hidden sm:flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors shadow-sm"
               >
                 <Plus size={18} />
                 <span className="text-sm font-medium">New Task</span>
               </button>
 
-              {/* Profile Avatar */}
-              <button className="w-10 h-10 rounded-xl bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center text-gray-600 font-medium hover:ring-2 hover:ring-blue-200 transition-all">
+              {/* Quick Add Button - Mobile */}
+              <button
+                onClick={() => setShowQuickAdd(!showQuickAdd)}
+                className="sm:hidden p-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+              >
+                <Plus size={20} />
+              </button>
+
+              {/* Profile Avatar - Desktop only */}
+              <button className="hidden sm:flex w-10 h-10 rounded-xl bg-gradient-to-br from-gray-200 to-gray-300 items-center justify-center text-gray-600 font-medium hover:ring-2 hover:ring-blue-200 transition-all">
                 {userName.charAt(0).toUpperCase()}
               </button>
             </div>
           </div>
+
+          {/* Mobile Search Bar - Expandable */}
+          {showMobileSearch && (
+            <div className="sm:hidden px-4 pb-3 animate-fade-in">
+              <div className="relative">
+                <Search
+                  size={18}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search tasks..."
+                  autoFocus
+                  className="w-full pl-10 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:bg-white focus:border-blue-300 focus:ring-2 focus:ring-blue-100 transition-all"
+                />
+                <button
+                  onClick={() => {
+                    setSearchQuery("");
+                    setShowMobileSearch(false);
+                  }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            </div>
+          )}
         </header>
 
         {/* Quick Add Modal */}
         {showQuickAdd && (
-          <div className="fixed inset-0 z-50 flex items-start justify-center pt-24 px-4">
+          <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 px-4">
             <div
               className="fixed inset-0 bg-black/20 backdrop-blur-sm"
               onClick={() => setShowQuickAdd(false)}
@@ -190,20 +253,20 @@ export default function DashboardPage() {
         )}
 
         {/* Page Content */}
-        <main className="px-8 py-8">
+        <main className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
           {/* Error Message */}
           {error && (
-            <div className="mb-6 rounded-xl bg-red-50 border border-red-100 p-4 animate-fade-in">
+            <div className="mb-4 sm:mb-6 rounded-xl bg-red-50 border border-red-100 p-3 sm:p-4 animate-fade-in">
               <p className="text-sm text-red-700">{error}</p>
             </div>
           )}
 
           {/* Greeting & Stats */}
-          <div className="mb-8">
-            <h1 className="text-2xl font-semibold text-gray-800 mb-1">
+          <div className="mb-4 sm:mb-6 lg:mb-8">
+            <h1 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-1">
               {greeting}, {userName.split(" ")[0]}!
             </h1>
-            <p className="text-gray-500">
+            <p className="text-sm sm:text-base text-gray-500">
               {todayStats.total === 0
                 ? "You have no tasks scheduled. Create one to get started!"
                 : todayStats.completed === todayStats.total
@@ -214,9 +277,17 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          {/* Progress Card & Task Form */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            <div className="lg:col-span-2">
+          {/* Progress Card - Mobile (shown above task form on mobile) */}
+          <div className="lg:hidden mb-4">
+            <DailyProgressCard
+              completed={todayStats.completed}
+              total={todayStats.total}
+            />
+          </div>
+
+          {/* Progress Card & Task Form - Desktop Grid */}
+          <div className="hidden lg:grid grid-cols-3 gap-6 mb-8">
+            <div className="col-span-2">
               <TaskForm onTaskCreated={(newTask) => setTasks([newTask, ...tasks])} />
             </div>
             <div>
@@ -227,14 +298,19 @@ export default function DashboardPage() {
             </div>
           </div>
 
+          {/* Task Form - Mobile/Tablet (full width) */}
+          <div className="lg:hidden mb-4 sm:mb-6">
+            <TaskForm onTaskCreated={(newTask) => setTasks([newTask, ...tasks])} />
+          </div>
+
           {/* Tasks Section */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold text-gray-800">
+          <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-100 p-4 sm:p-6">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <h2 className="text-base sm:text-lg font-semibold text-gray-800">
                 {searchQuery ? "Search Results" : "All Tasks"}
               </h2>
               {filteredTasks.length > 0 && (
-                <span className="text-sm text-gray-500">
+                <span className="text-xs sm:text-sm text-gray-500">
                   {filteredTasks.length} task{filteredTasks.length !== 1 ? "s" : ""}
                 </span>
               )}
@@ -243,8 +319,8 @@ export default function DashboardPage() {
             {/* Task List */}
             {filteredTasks.length === 0 ? (
               searchQuery ? (
-                <div className="text-center py-12">
-                  <p className="text-gray-500">
+                <div className="text-center py-8 sm:py-12">
+                  <p className="text-gray-500 text-sm sm:text-base">
                     No tasks found matching "{searchQuery}"
                   </p>
                   <button

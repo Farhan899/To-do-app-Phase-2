@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Calendar,
   CheckCircle2,
@@ -11,6 +11,8 @@ import {
   ChevronRight,
   Sun,
   LogOut,
+  X,
+  Menu,
 } from "lucide-react";
 
 type NavItem = "today" | "upcoming" | "projects" | "calendar" | "settings";
@@ -23,6 +25,8 @@ interface SidebarProps {
   userEmail?: string;
   completedToday?: number;
   totalToday?: number;
+  isMobileOpen?: boolean;
+  onMobileClose?: () => void;
 }
 
 export default function Sidebar({
@@ -33,8 +37,33 @@ export default function Sidebar({
   userEmail = "",
   completedToday = 0,
   totalToday = 0,
+  isMobileOpen = false,
+  onMobileClose,
 }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+
+  // Close mobile sidebar on escape key
+  useEffect(() => {
+    function handleEscape(e: KeyboardEvent) {
+      if (e.key === "Escape" && isMobileOpen) {
+        onMobileClose?.();
+      }
+    }
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [isMobileOpen, onMobileClose]);
+
+  // Prevent body scroll when mobile sidebar is open
+  useEffect(() => {
+    if (isMobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobileOpen]);
 
   const navItems: { id: NavItem; label: string; icon: typeof Sun }[] = [
     { id: "today", label: "Today", icon: Sun },
@@ -46,15 +75,8 @@ export default function Sidebar({
 
   const progress = totalToday > 0 ? (completedToday / totalToday) * 100 : 0;
 
-  return (
-    <aside
-      className={`fixed left-0 top-0 h-screen bg-white border-r border-gray-100 flex flex-col z-40 transition-all duration-300 ${
-        isCollapsed ? "w-[72px]" : "w-[280px]"
-      }`}
-      style={{
-        boxShadow: "2px 0 8px rgba(0,0,0,0.03)",
-      }}
-    >
+  const sidebarContent = (
+    <>
       {/* Header */}
       <div className="p-4 flex items-center justify-between border-b border-gray-100">
         {!isCollapsed && (
@@ -65,12 +87,21 @@ export default function Sidebar({
             <span className="font-semibold text-lg text-gray-800">TaskFlow</span>
           </div>
         )}
+        {/* Desktop collapse button */}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors"
+          className="hidden lg:flex p-2 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors"
           aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+        </button>
+        {/* Mobile close button */}
+        <button
+          onClick={onMobileClose}
+          className="lg:hidden p-2 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors"
+          aria-label="Close sidebar"
+        >
+          <X size={20} />
         </button>
       </div>
 
@@ -142,7 +173,10 @@ export default function Sidebar({
             return (
               <li key={item.id}>
                 <button
-                  onClick={() => onNavigate?.(item.id)}
+                  onClick={() => {
+                    onNavigate?.(item.id);
+                    onMobileClose?.();
+                  }}
                   className={`nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all ${
                     isActive
                       ? "bg-blue-50 text-blue-700 font-medium"
@@ -198,6 +232,55 @@ export default function Sidebar({
           </div>
         )}
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Desktop Sidebar */}
+      <aside
+        className={`hidden lg:flex fixed left-0 top-0 h-screen bg-white border-r border-gray-100 flex-col z-40 transition-all duration-300 ${
+          isCollapsed ? "w-[72px]" : "w-[280px]"
+        }`}
+        style={{
+          boxShadow: "2px 0 8px rgba(0,0,0,0.03)",
+        }}
+      >
+        {sidebarContent}
+      </aside>
+
+      {/* Mobile Sidebar Overlay */}
+      {isMobileOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/30 backdrop-blur-sm z-40"
+          onClick={onMobileClose}
+        />
+      )}
+
+      {/* Mobile Sidebar Drawer */}
+      <aside
+        className={`lg:hidden fixed left-0 top-0 h-screen w-[280px] bg-white border-r border-gray-100 flex flex-col z-50 transition-transform duration-300 ease-out ${
+          isMobileOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+        style={{
+          boxShadow: isMobileOpen ? "2px 0 8px rgba(0,0,0,0.1)" : "none",
+        }}
+      >
+        {sidebarContent}
+      </aside>
+    </>
+  );
+}
+
+// Mobile Menu Button Component
+export function MobileMenuButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="lg:hidden p-2 rounded-xl hover:bg-gray-100 text-gray-600 transition-colors"
+      aria-label="Open menu"
+    >
+      <Menu size={24} />
+    </button>
   );
 }
