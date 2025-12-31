@@ -129,9 +129,11 @@ export default function CalendarView({ tasks }: CalendarViewProps) {
               className={`relative aspect-square p-1 ${dayTasks.length > 0 ? "group cursor-pointer" : ""}`}
             >
               <div
-                className={`w-full h-full rounded-lg flex flex-col items-center justify-center text-sm transition-all ${
+                className={`w-full h-full rounded-lg flex flex-col items-center justify-center text-sm transition-all border-2 ${
                   isToday
-                    ? "bg-blue-600 text-white font-semibold"
+                    ? "bg-blue-600 text-white font-semibold border-blue-600"
+                    : dayTasks.length > 0
+                    ? "border-blue-300 bg-blue-50"
                     : isPast
                     ? "text-gray-400"
                     : "text-gray-700 hover:bg-gray-50"
@@ -161,8 +163,8 @@ export default function CalendarView({ tasks }: CalendarViewProps) {
 
               {/* Tooltip */}
               {dayTasks.length > 0 && (
-                <div className="absolute z-10 left-1/2 bottom-full mb-2 -translate-x-1/2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
-                  <div className="bg-gray-900 text-white text-xs rounded-lg shadow-lg p-3 min-w-[200px] max-w-[280px]">
+                <div className="absolute z-50 left-1/2 bottom-full mb-2 -translate-x-1/2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all pointer-events-none">
+                  <div className="bg-gray-900 text-white text-xs rounded-lg shadow-xl p-3 min-w-[200px] max-w-[280px]">
                     <div className="font-medium mb-2">
                       {date.toLocaleDateString("en-US", {
                         weekday: "short",
