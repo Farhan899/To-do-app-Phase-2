@@ -126,7 +126,7 @@ export default function CalendarView({ tasks }: CalendarViewProps) {
           return (
             <div
               key={dateStr}
-              className="relative aspect-square p-1"
+              className={`relative aspect-square p-1 ${dayTasks.length > 0 ? "group cursor-pointer" : ""}`}
             >
               <div
                 className={`w-full h-full rounded-lg flex flex-col items-center justify-center text-sm transition-all ${
