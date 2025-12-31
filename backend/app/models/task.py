@@ -11,7 +11,5 @@ class Task(SQLModel, table=True):
     title: str = Field(min_length=1, max_length=200)
     description: Optional[str] = Field(default=None, max_length=2000)
     is_completed: bool = Field(default=False)
-    priority: Optional[str] = Field(default=None, max_length=20)
-    due_date: Optional[str] = Field(default=None, max_length=10)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)

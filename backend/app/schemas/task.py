@@ -6,8 +6,6 @@ class TaskCreate(BaseModel):
     """Schema for creating a new task"""
     title: str = Field(..., min_length=1, max_length=200)
     description: Optional[str] = Field(None, max_length=2000)
-    priority: Optional[str] = Field(None, max_length=20)
-    due_date: Optional[str] = Field(None, max_length=10)
 
     @field_validator('title')
     @classmethod
@@ -27,8 +25,6 @@ class TaskUpdate(BaseModel):
     """Schema for updating an existing task"""
     title: Optional[str] = Field(None, min_length=1, max_length=200)
     description: Optional[str] = Field(None, max_length=2000)
-    priority: Optional[str] = Field(None, max_length=20)
-    due_date: Optional[str] = Field(None, max_length=10)
 
     @field_validator('title')
     @classmethod
@@ -51,8 +47,6 @@ class TaskResponse(BaseModel):
     title: str
     description: Optional[str]
     is_completed: bool
-    priority: Optional[str]
-    due_date: Optional[str]
     created_at: datetime
     updated_at: datetime
 
