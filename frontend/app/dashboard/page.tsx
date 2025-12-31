@@ -13,7 +13,7 @@ import Sidebar from "@/components/sidebar";
 import { DailyProgressCard } from "@/components/progress-ring";
 import { DashboardSkeleton } from "@/components/skeleton";
 
-type ActiveView = "today" | "upcoming" | "projects" | "calendar" | "settings";
+type ActiveView = "all" | "today" | "upcoming" | "completed" | "projects" | "calendar";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -26,7 +26,7 @@ export default function DashboardPage() {
   const [userEmail, setUserEmail] = useState("");
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
-  const [activeView, setActiveView] = useState<ActiveView>("today");
+  const [activeView, setActiveView] = useState<ActiveView>("all");
   const quickAddRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -78,16 +78,44 @@ export default function DashboardPage() {
     toast.success(`Switched to ${view.charAt(0).toUpperCase() + view.slice(1)} view`);
   }
 
-  // Filter tasks based on search
+  // Filter tasks based on active view and search
   const filteredTasks = useMemo(() => {
-    if (!searchQuery.trim()) return tasks;
+    let viewFilteredTasks = tasks;
+
+    // First filter by view
+    if (activeView === "all") {
+      viewFilteredTasks = tasks; // Show all tasks
+    } else if (activeView === "completed") {
+      viewFilteredTasks = tasks.filter((task) => task.is_completed);
+    } else if (activeView === "today") {
+      const today = new Date().toISOString().split("T")[0];
+      viewFilteredTasks = tasks.filter((task) => {
+        return task.due_date === today;
+      });
+    } else if (activeView === "upcoming") {
+      const today = new Date().toISOString().split("T")[0];
+      const upcomingTasks = tasks.filter((task) => {
+        return task.due_date && task.due_date > today && !task.is_completed;
+      });
+      // Sort by due_date and get only the first (earliest) one
+      if (upcomingTasks.length > 0) {
+        upcomingTasks.sort((a, b) => a.due_date!.localeCompare(b.due_date!));
+        viewFilteredTasks = [upcomingTasks[0]]; // Only show the next upcoming task
+      } else {
+        viewFilteredTasks = [];
+      }
+    }
+    // Add more view filters for projects, calendar as needed
+
+    // Then apply search filter
+    if (!searchQuery.trim()) return viewFilteredTasks;
     const query = searchQuery.toLowerCase();
-    return tasks.filter(
+    return viewFilteredTasks.filter(
       (task) =>
         task.title.toLowerCase().includes(query) ||
         task.description?.toLowerCase().includes(query)
     );
-  }, [tasks, searchQuery]);
+  }, [tasks, searchQuery, activeView]);
 
   // Calculate today's progress
   const todayStats = useMemo(() => {
@@ -273,12 +301,16 @@ export default function DashboardPage() {
           {/* Greeting & Stats */}
           <div className="mb-4 sm:mb-6 lg:mb-8">
             <h1 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-1">
-              {activeView === "today"
+              {activeView === "all"
+                ? `${greeting}, ${userName.split(" ")[0]}!`
+                : activeView === "today"
                 ? `${greeting}, ${userName.split(" ")[0]}!`
                 : activeView.charAt(0).toUpperCase() + activeView.slice(1)}
             </h1>
             <p className="text-sm sm:text-base text-gray-500">
-              {activeView === "today" ? (
+              {activeView === "all" ? (
+                `You have ${tasks.length} task${tasks.length !== 1 ? "s" : ""} in total`
+              ) : activeView === "today" ? (
                 todayStats.total === 0
                   ? "You have no tasks scheduled. Create one to get started!"
                   : todayStats.completed === todayStats.total
@@ -287,13 +319,13 @@ export default function DashboardPage() {
                       todayStats.total - todayStats.completed !== 1 ? "s" : ""
                     } to complete today.`
               ) : activeView === "upcoming" ? (
-                "View your upcoming tasks and deadlines"
+                "Your next upcoming task"
+              ) : activeView === "completed" ? (
+                "View all your completed tasks"
               ) : activeView === "projects" ? (
                 "Organize your tasks by projects"
-              ) : activeView === "calendar" ? (
-                "Calendar view of your tasks"
               ) : (
-                "Manage your account settings"
+                "Calendar view of your tasks"
               )}
             </p>
           </div>

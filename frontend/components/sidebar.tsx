@@ -6,16 +6,17 @@ import {
   CheckCircle2,
   FolderKanban,
   CalendarDays,
-  Settings,
   ChevronLeft,
   ChevronRight,
   Sun,
   LogOut,
   X,
   Menu,
+  CheckCheck,
+  ListTodo,
 } from "lucide-react";
 
-type NavItem = "today" | "upcoming" | "projects" | "calendar" | "settings";
+type NavItem = "all" | "today" | "upcoming" | "completed" | "projects" | "calendar";
 
 interface SidebarProps {
   activeItem?: NavItem;
@@ -30,7 +31,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({
-  activeItem = "today",
+  activeItem = "all",
   onNavigate,
   onLogout,
   userName = "User",
@@ -66,11 +67,12 @@ export default function Sidebar({
   }, [isMobileOpen]);
 
   const navItems: { id: NavItem; label: string; icon: typeof Sun }[] = [
+    { id: "all", label: "All Tasks", icon: ListTodo },
     { id: "today", label: "Today", icon: Sun },
     { id: "upcoming", label: "Upcoming", icon: CalendarDays },
+    { id: "completed", label: "Completed", icon: CheckCheck },
     { id: "projects", label: "Projects", icon: FolderKanban },
     { id: "calendar", label: "Calendar", icon: Calendar },
-    { id: "settings", label: "Settings", icon: Settings },
   ];
 
   const progress = totalToday > 0 ? (completedToday / totalToday) * 100 : 0;
