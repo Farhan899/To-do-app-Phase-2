@@ -71,7 +71,6 @@ export default function Sidebar({
     { id: "today", label: "Today", icon: Sun },
     { id: "upcoming", label: "Upcoming", icon: CalendarDays },
     { id: "completed", label: "Completed", icon: CheckCheck },
-    { id: "projects", label: "Projects", icon: FolderKanban },
     { id: "calendar", label: "Calendar", icon: Calendar },
   ];
 

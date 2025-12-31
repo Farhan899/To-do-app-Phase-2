@@ -12,8 +12,9 @@ import TaskForm from "@/components/task-form";
 import Sidebar from "@/components/sidebar";
 import { DailyProgressCard } from "@/components/progress-ring";
 import { DashboardSkeleton } from "@/components/skeleton";
+import CalendarView from "@/components/calendar-view";
 
-type ActiveView = "all" | "today" | "upcoming" | "completed" | "projects" | "calendar";
+type ActiveView = "all" | "today" | "upcoming" | "completed" | "calendar";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -104,8 +105,9 @@ export default function DashboardPage() {
       } else {
         viewFilteredTasks = [];
       }
+    } else if (activeView === "calendar") {
+      viewFilteredTasks = tasks; // Calendar handles its own filtering and display
     }
-    // Add more view filters for projects, calendar as needed
 
     // Then apply search filter
     if (!searchQuery.trim()) return viewFilteredTasks;
@@ -322,82 +324,91 @@ export default function DashboardPage() {
                 "Your next upcoming task"
               ) : activeView === "completed" ? (
                 "View all your completed tasks"
-              ) : activeView === "projects" ? (
-                "Organize your tasks by projects"
               ) : (
-                "Calendar view of your tasks"
+                "See tasks by due date"
               )}
             </p>
           </div>
 
           {/* Progress Card - Mobile (shown above task form on mobile) */}
-          <div className="lg:hidden mb-4">
-            <DailyProgressCard
-              completed={todayStats.completed}
-              total={todayStats.total}
-            />
-          </div>
-
-          {/* Progress Card & Task Form - Desktop Grid */}
-          <div className="hidden lg:grid grid-cols-3 gap-6 mb-8">
-            <div className="col-span-2">
-              <TaskForm onTaskCreated={(newTask) => setTasks([newTask, ...tasks])} />
-            </div>
-            <div>
+          {activeView !== "calendar" && (
+            <div className="lg:hidden mb-4">
               <DailyProgressCard
                 completed={todayStats.completed}
                 total={todayStats.total}
               />
             </div>
-          </div>
+          )}
+
+          {/* Progress Card & Task Form - Desktop Grid */}
+          {activeView !== "calendar" && (
+            <div className="hidden lg:grid grid-cols-3 gap-6 mb-8">
+              <div className="col-span-2">
+                <TaskForm onTaskCreated={(newTask) => setTasks([newTask, ...tasks])} />
+              </div>
+              <div>
+                <DailyProgressCard
+                  completed={todayStats.completed}
+                  total={todayStats.total}
+                />
+              </div>
+            </div>
+          )}
 
           {/* Task Form - Mobile/Tablet (full width) */}
-          <div className="lg:hidden mb-4 sm:mb-6">
-            <TaskForm onTaskCreated={(newTask) => setTasks([newTask, ...tasks])} />
-          </div>
+          {activeView !== "calendar" && (
+            <div className="lg:hidden mb-4 sm:mb-6">
+              <TaskForm onTaskCreated={(newTask) => setTasks([newTask, ...tasks])} />
+            </div>
+          )}
+
+          {/* Calendar View */}
+          {activeView === "calendar" && <CalendarView tasks={tasks} />}
 
           {/* Tasks Section */}
-          <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-100 p-4 sm:p-6">
-            <div className="flex items-center justify-between mb-4 sm:mb-6">
-              <h2 className="text-base sm:text-lg font-semibold text-gray-800">
-                {searchQuery ? "Search Results" : "All Tasks"}
-              </h2>
-              {filteredTasks.length > 0 && (
-                <span className="text-xs sm:text-sm text-gray-500">
-                  {filteredTasks.length} task{filteredTasks.length !== 1 ? "s" : ""}
-                </span>
+          {activeView !== "calendar" && (
+            <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-100 p-4 sm:p-6">
+              <div className="flex items-center justify-between mb-4 sm:mb-6">
+                <h2 className="text-base sm:text-lg font-semibold text-gray-800">
+                  {searchQuery ? "Search Results" : "All Tasks"}
+                </h2>
+                {filteredTasks.length > 0 && (
+                  <span className="text-xs sm:text-sm text-gray-500">
+                    {filteredTasks.length} task{filteredTasks.length !== 1 ? "s" : ""}
+                  </span>
+                )}
+              </div>
+
+              {/* Task List */}
+              {filteredTasks.length === 0 ? (
+                searchQuery ? (
+                  <div className="text-center py-8 sm:py-12">
+                    <p className="text-gray-500 text-sm sm:text-base">
+                      No tasks found matching "{searchQuery}"
+                    </p>
+                    <button
+                      onClick={() => setSearchQuery("")}
+                      className="mt-2 text-sm text-blue-600 hover:text-blue-700"
+                    >
+                      Clear search
+                    </button>
+                  </div>
+                ) : (
+                  <EmptyState />
+                )
+              ) : (
+                <TaskList
+                  tasks={filteredTasks}
+                  onTaskUpdated={(updatedTask) => {
+                    setTasks(tasks.map((t) => (t.id === updatedTask.id ? updatedTask : t)));
+                  }}
+                  onTaskDeleted={(taskId) => {
+                    setTasks(tasks.filter((t) => t.id !== taskId));
+                  }}
+                />
               )}
             </div>
-
-            {/* Task List */}
-            {filteredTasks.length === 0 ? (
-              searchQuery ? (
-                <div className="text-center py-8 sm:py-12">
-                  <p className="text-gray-500 text-sm sm:text-base">
-                    No tasks found matching "{searchQuery}"
-                  </p>
-                  <button
-                    onClick={() => setSearchQuery("")}
-                    className="mt-2 text-sm text-blue-600 hover:text-blue-700"
-                  >
-                    Clear search
-                  </button>
-                </div>
-              ) : (
-                <EmptyState />
-              )
-            ) : (
-              <TaskList
-                tasks={filteredTasks}
-                onTaskUpdated={(updatedTask) => {
-                  setTasks(tasks.map((t) => (t.id === updatedTask.id ? updatedTask : t)));
-                }}
-                onTaskDeleted={(taskId) => {
-                  setTasks(tasks.filter((t) => t.id !== taskId));
-                }}
-              />
-            )}
-          </div>
+          )}
         </main>
       </div>
     </div>
